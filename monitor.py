@@ -4,7 +4,7 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 import os
-
+ 
 RUDY_URL = "https://rudyburgers.com"
 
 LOCALES = {
