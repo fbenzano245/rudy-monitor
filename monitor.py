@@ -4,7 +4,7 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 import os
- 
+
 RUDY_URL = "https://rudyburgers.com"
 
 LOCALES = {
@@ -15,6 +15,7 @@ LOCALES = {
 }
 
 SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL") or "https://script.google.com/macros/s/AKfycbyF1fB2WuwoqDsc1MBDxA5qSmXs5sONTCg39CnRjLjgoHmWDN8D6X5vlIXrqVTg4bBp/exec"
+
 def scrape_tiempos():
     headers = {"User-Agent": "Mozilla/5.0 (compatible; RudyMonitor/1.0)"}
     response = requests.get(RUDY_URL, headers=headers, timeout=10)
@@ -28,6 +29,8 @@ def scrape_tiempos():
         match = re.search(patron, texto_pagina, re.IGNORECASE)
         if match:
             resultados[nombre] = int(match.group(1))
+        elif re.search(rf"{keyword}[^)]*cerrado", texto_pagina, re.IGNORECASE):
+            resultados[nombre] = "cerrado"
         else:
             resultados[nombre] = None
     return timestamp, resultados
@@ -54,8 +57,8 @@ def main():
     timestamp, resultados = scrape_tiempos()
     for local, minutos in resultados.items():
         if minutos is not None:
-            estado = "✅" if minutos <= 20 else "⚠️"
-            print(f"  {estado} {local}: {minutos} min")
+            estado = "✅" if minutos != "cerrado" and minutos <= 20 else "⚠️"
+            print(f"  {estado} {local}: {minutos}")
         else:
             print(f"  ❌ {local}: no se detectó tiempo")
     print("─" * 45)
