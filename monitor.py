@@ -23,7 +23,7 @@ def scrape_tiempos():
     soup = BeautifulSoup(response.text, "html.parser")
     texto_pagina = soup.get_text(" ", strip=True).lower()
     resultados = {}
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    timestamp = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%Y-%m-%d %H:%M")
     for nombre, keyword in LOCALES.items():
         patron = rf"{keyword}[^(]*takeaway[^(]*\((\d+)\s*min\)"
         match = re.search(patron, texto_pagina, re.IGNORECASE)
