@@ -14,8 +14,7 @@ LOCALES = {
     "Centro":         "centro",
 }
 
-SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL") or "https://script.google.com/macros/s/AKfycbyRpBlfxh311Ep5BY9iLVVGhh0iJbXw6Xa70kyEmhtD0EZkye-E372fQpGa9jljfgGt/exec"
-
+SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL") or "https://script.google.com/macros/s/AKfycbyF1fB2WuwoqDsc1MBDxA5qSmXs5sONTCg39CnRjLjgoHmWDN8D6X5vlIXrqVTg4bBp/exec"
 def scrape_tiempos():
     headers = {"User-Agent": "Mozilla/5.0 (compatible; RudyMonitor/1.0)"}
     response = requests.get(RUDY_URL, headers=headers, timeout=10)
