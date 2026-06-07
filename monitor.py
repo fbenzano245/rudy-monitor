@@ -16,6 +16,12 @@ LOCALES = {
 
 SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL") or "https://script.google.com/macros/s/AKfycbyF1fB2WuwoqDsc1MBDxA5qSmXs5sONTCg39CnRjLjgoHmWDN8D6X5vlIXrqVTg4bBp/exec"
 
+def en_horario_operativo(ahora):
+    minutos = ahora.hour * 60 + ahora.minute
+    # Operativo: 11:00 (660) a 01:30 del día siguiente (1530 = 25*60+30)
+    # Fuera: 01:30 (90) a 11:00 (660)
+    return not (minutos >= 90 and minutos < 660)
+
 def scrape_tiempos():
     headers = {"User-Agent": "Mozilla/5.0 (compatible; RudyMonitor/1.0)"}
     response = requests.get(RUDY_URL, headers=headers, timeout=10)
@@ -52,13 +58,19 @@ def enviar_a_sheets(timestamp, resultados):
     return response.status_code
 
 def main():
-    print(f"🍔 RUDY Monitor — {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    ahora = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3)))
+
+    if not en_horario_operativo(ahora):
+        print(f"⏸ Fuera de horario ({ahora.strftime('%H:%M')}) — sin acción")
+        return
+
+    print(f"🍔 RUDY Monitor — {ahora.strftime('%Y-%m-%d %H:%M')}")
     print("─" * 45)
     timestamp, resultados = scrape_tiempos()
-    for local, minutos in resultados.items():
-        if minutos is not None:
-            estado = "✅" if minutos != "cerrado" and minutos <= 20 else "⚠️"
-            print(f"  {estado} {local}: {minutos}")
+    for local, valor in resultados.items():
+        if valor is not None:
+            estado = "✅" if valor != "cerrado" and valor <= 20 else "⚠️"
+            print(f"  {estado} {local}: {valor}")
         else:
             print(f"  ❌ {local}: no se detectó tiempo")
     print("─" * 45)
