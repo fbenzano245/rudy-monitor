@@ -18,8 +18,6 @@ SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL") or "https://script.goo
 
 def en_horario_operativo(ahora):
     minutos = ahora.hour * 60 + ahora.minute
-    # Operativo: 11:00 (660) a 01:30 del día siguiente (1530 = 25*60+30)
-    # Fuera: 01:30 (90) a 11:00 (660)
     return not (minutos >= 90 and minutos < 660)
 
 def scrape_tiempos():
@@ -53,7 +51,7 @@ def enviar_a_sheets(timestamp, resultados):
         SHEETS_WEBHOOK_URL,
         json=fila,
         headers={"Content-Type": "application/json"},
-        timeout=10,
+        timeout=25,
     )
     return response.status_code
 
