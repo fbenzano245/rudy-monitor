@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 import os
 
 RUDY_URL = "https://rudyburgers.com"
-
 LOCALES = {
     "Pocitos":        "pocitos",
     "Punta Carretas": "punta carretas",
@@ -14,7 +13,9 @@ LOCALES = {
     "Centro":         "centro",
 }
 
-SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL") or "https://script.google.com/macros/s/AKfycbyF1fB2WuwoqDsc1MBDxA5qSmXs5sONTCg39CnRjLjgoHmWDN8D6X5vlIXrqVTg4bBp/exec"
+SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL")
+if not SHEETS_WEBHOOK_URL:
+    raise ValueError("Falta la variable SHEETS_WEBHOOK_URL")
 
 def en_horario_operativo(ahora):
     minutos = ahora.hour * 60 + ahora.minute
@@ -57,12 +58,10 @@ def enviar_a_sheets(timestamp, resultados):
 
 def main():
     ahora = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3)))
-
     if not en_horario_operativo(ahora):
         print(f"⏸ Fuera de horario ({ahora.strftime('%H:%M')}) — sin acción")
         return
-
-    print(f"🍔 RUDY Monitor — {ahora.strftime('%Y-%m-%d %H:%M')}")
+    print(f"🍔 RUDY Monitor — {ahora.strftime('%H:%M')}")
     print("─" * 45)
     timestamp, resultados = scrape_tiempos()
     for local, valor in resultados.items():
