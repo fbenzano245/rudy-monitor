@@ -30,7 +30,7 @@ def scrape_tiempos():
     resultados = {}
     timestamp = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%Y-%m-%d %H:%M")
     for nombre, keyword in LOCALES.items():
-        patron = rf"{keyword}[^(]*takeaway[^(]*\((\d+)\s*mins?\)"
+        patron = rf"{keyword}[^(]*takeaway[^(]*\((\d+)"
         match = re.search(patron, texto_pagina, re.IGNORECASE)
         if match:
             resultados[nombre] = int(match.group(1))
