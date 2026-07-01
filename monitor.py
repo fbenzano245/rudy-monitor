@@ -42,6 +42,7 @@ def scrape_tiempos():
 
 def enviar_a_sheets(timestamp, resultados):
     fila = {
+        "type": "log_tiempos_promesa",
         "timestamp": timestamp,
         "Pocitos":        resultados.get("Pocitos"),
         "Punta Carretas": resultados.get("Punta Carretas"),
