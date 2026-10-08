@@ -11,7 +11,12 @@ LOCALES = {
     "Punta Carretas": "punta carretas",
     "Carrasco":       "carrasco",
     "Centro":         "centro",
+    "Prado":          "prado",
 }
+
+# Locales que, si no se detectan, NO invalidan el envío: simplemente se omiten.
+# (Cuando Prado ya se detecte siempre, se puede sacar de esta lista.)
+LOCALES_OPCIONALES = ["Prado"]
 
 SHEETS_WEBHOOK_URL = os.environ.get("SHEETS_WEBHOOK_URL")
 if not SHEETS_WEBHOOK_URL:
@@ -40,15 +45,18 @@ def scrape_tiempos():
             resultados[nombre] = None
     return timestamp, resultados
 
+def armar_fila(timestamp, resultados):
+    fila = {"type": "log_tiempos_promesa", "timestamp": timestamp}
+    for local in LOCALES:
+        valor = resultados.get(local)
+        # Un local opcional que no se detectó se omite del envío (no se manda null)
+        if valor is None and local in LOCALES_OPCIONALES:
+            continue
+        fila[local] = valor
+    return fila
+
 def enviar_a_sheets(timestamp, resultados):
-    fila = {
-        "type": "log_tiempos_promesa",
-        "timestamp": timestamp,
-        "Pocitos":        resultados.get("Pocitos"),
-        "Punta Carretas": resultados.get("Punta Carretas"),
-        "Carrasco":       resultados.get("Carrasco"),
-        "Centro":         resultados.get("Centro"),
-    }
+    fila = armar_fila(timestamp, resultados)
     response = requests.post(
         SHEETS_WEBHOOK_URL,
         json=fila,
